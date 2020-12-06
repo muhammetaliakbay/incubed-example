@@ -12,8 +12,10 @@ import {blueGrey, grey} from '@material-ui/core/colors';
 import {ApplicationAppBar} from "./app-bar";
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import {NodeRegistryApiMirror} from "../api-mirror";
-import {scan} from "rxjs/operators";
-import {ExtendedNodeInfo, NodeMap} from "../../engine/node-watch";
+import {catchError, ignoreElements, repeat, retry, scan} from "rxjs/operators";
+import {ExtendedNodeInfo, NodeMap, watchContract, watchNodes} from "../../engine/node-watch";
+import {NodeRegistryApi} from "../../engine/node-registry-api";
+import {Observable, timer} from "rxjs";
 
 const theme = createMuiTheme(
     {
@@ -29,30 +31,53 @@ const theme = createMuiTheme(
 
 export function Dashboard(
     {
-        registry
+        api
     }: {
-        registry: NodeRegistryApiMirror
+        api: NodeRegistryApi
     }
 ) {
     let [nodes] = useObservable(
-        () => registry.nodeMap$.pipe(
-            scan<NodeMap, ExtendedNodeInfo[]>(
-                (list, map) => {
-                    const newList = list.slice();
-                    for (const node of Object.values(map)) {
-                        const index = newList.findIndex(prev => prev.signer === node.signer);
-                        if (index > -1) {
-                            newList[index] = node;
-                        } else {
-                            newList.push(node);
-                        }
+        () => {
+            const notifyPeriod = 60*1000;
+
+            const notifier = timer(0, notifyPeriod) as any as Observable<void>;
+
+            const contractWatch$ = watchContract(
+                api,
+                notifier
+            ).pipe(
+                catchError(
+                    err => {
+                        console.error(err);
+                        return timer(15000).pipe(ignoreElements());
                     }
-                    return newList;
-                },
-                []
-            )
-        ),
-         [ registry.nodeMap$ ]
+                ),
+                repeat()
+            );
+
+            const nodeMap$ = watchNodes(
+                contractWatch$
+            );
+
+            return nodeMap$.pipe(
+                scan<NodeMap, ExtendedNodeInfo[]>(
+                    (list, map) => {
+                        const newList = list.slice();
+                        for (const node of Object.values(map)) {
+                            const index = newList.findIndex(prev => prev.signer === node.signer);
+                            if (index > -1) {
+                                newList[index] = node;
+                            } else {
+                                newList.push(node);
+                            }
+                        }
+                        return newList;
+                    },
+                    []
+                )
+            );
+        },
+         [ api ]
     );
     if (nodes == null) {
         nodes = [];

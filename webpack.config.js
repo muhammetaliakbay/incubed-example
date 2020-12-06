@@ -30,7 +30,7 @@ module.exports = [
 
         ...commons,
         externals: [
-            'electron commonjs'
+            'electron commonjs',
         ],
 
         entry: './src/ui/electron-main.ts',
@@ -65,6 +65,9 @@ module.exports = [
         name: 'ui',
 
         ...commons,
+        externals: [
+            'fs commonjs',
+        ],
 
         entry: './src/ui/index.tsx',
 
@@ -74,12 +77,7 @@ module.exports = [
         },
         devtool: 'cheap-source-map',
 
-        target: 'electron-renderer',
-        node: {
-            __filename: true,
-            __dirname: true,
-            global: false
-        },
+        target: 'web',
 
         module: {
             rules: [{

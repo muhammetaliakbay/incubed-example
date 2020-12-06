@@ -3,11 +3,12 @@ import {
   AppBar,
   Box,
   Button, ButtonGroup,
-  Icon,
+  Icon, Link,
   Toolbar,
   Typography,
   useTheme
 } from '@material-ui/core';
+import isElectron from 'is-electron';
 
 export function ApplicationAppBar(
   {
@@ -27,19 +28,31 @@ export function ApplicationAppBar(
     <Toolbar>
       <Box flexGrow={1}/>
       <Typography noWrap
-                  variant='h6'
-                  children={title} />
+                  variant='h6'>
+        {title} {
+          isElectron() || <>
+              | <Button style={{
+              // @ts-ignore
+              WebkitAppRegion: 'no-drag'
+            }} variant='outlined' target='__blank' href='https://github.com/muhammetaliakbay/incubed-example'>Github Repository</Button>
+          </>
+        }
+      </Typography>
       <Box flexGrow={1} />
-      <ButtonGroup style={{
-        // @ts-ignore
-        WebkitAppRegion: 'no-drag'
-      }} size='small' variant='text' color='primary'>
-        <Button color='inherit' onClick={() => {
-          window.close();
-        }}>
-          <Icon>close</Icon>
-        </Button>
-      </ButtonGroup>
+      {
+        isElectron() && (
+            <ButtonGroup style={{
+              // @ts-ignore
+              WebkitAppRegion: 'no-drag'
+            }} size='small' variant='text' color='primary'>
+              <Button color='inherit' onClick={() => {
+                window.close();
+              }}>
+                <Icon>close</Icon>
+              </Button>
+            </ButtonGroup>
+        )
+      }
     </Toolbar>
   </AppBar>;
 }

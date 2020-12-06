@@ -1,5 +1,4 @@
 import path from "path";
-import {readFileSync} from "fs";
 
 /**
  * Loads ABI definitions of specified contract from compiled files
@@ -13,6 +12,7 @@ export function loadABI(contractName: string) {
     try {
         return require(`../contracts/${contractName}.json`).abi;
     } catch (e) {
-        return JSON.parse(readFileSync(path.resolve(`./lib/contracts/${contractName}.json`), {encoding: 'utf8'})).abi;
+        return require(`../../lib/contracts/${contractName}.json`).abi;
+        // return JSON.parse(readFileSync(path.resolve(`./lib/contracts/${contractName}.json`), {encoding: 'utf8'})).abi;
     }
 }
