@@ -1,7 +1,6 @@
 import {app, BrowserWindow} from "electron";
-import {NodeRegistryApi} from "../engine/node-registry-api";
 
-export function isDev() {
+function isDev() {
     return process.argv.includes('--dev');
 }
 
@@ -24,13 +23,15 @@ async function openWindow() {
 
     // Open the DevTools.
     if (isDev()) {
+        // If process have been started with '--dev' parameter, show dev-tools
         window.webContents.openDevTools({
             mode: 'detach'
         });
     }
+    // Remove standard menus from window
     window.removeMenu();
 
-    // and load the index.html of the app.
+    // Load the index.html of the app.
     await Promise.all([
         window.loadFile(`bundle/index.html`),
         new Promise<void>(resolve => {

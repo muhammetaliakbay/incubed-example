@@ -3,7 +3,7 @@ import {
   AppBar,
   Box,
   Button, ButtonGroup,
-  Icon, Link,
+  Icon,
   Toolbar,
   Typography,
   useTheme

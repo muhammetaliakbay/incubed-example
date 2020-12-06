@@ -1,11 +1,11 @@
 import {IN3} from "in3-wasm";
-import {buildProps} from "../engine/properties-util";
 import Web3 from "web3";
 import {NodeRegistryApi} from "../engine/node-registry-api";
 import {ReplaySubject, Subject} from "rxjs";
 import {concatMap, distinctUntilChanged, map, shareReplay, switchMap} from "rxjs/operators";
 import {fromPromise} from "rxjs/internal-compatibility";
 
+// A promise which gets resolved when IN3 is able to serve
 const onInit = new Promise<Web3>((resolve) => IN3.onInit(resolve.bind(undefined, void 0)));
 
 export interface Network {
@@ -26,6 +26,11 @@ export function setNetwork(chainId: string, contractAddress: string) {
     });
 }
 
+/**
+ * api$ is an Observable which takes current network parameters and constructs
+ * an API instance with them. If network parameters gets change, api$ will
+ * emit a new API instance which constructed with latest network parameters.
+ */
 export const api$ = fromPromise(onInit).pipe(
     concatMap(() => network$),
     map(

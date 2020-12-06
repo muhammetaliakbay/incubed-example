@@ -28,7 +28,9 @@ be a solution for the test task about job application to Blockchains LLC.
 
 ### About tests
 Always execute **"npm install"** before making tests to compile sources.
-And always make sure there is a running Ganache instance: **"npm run ganache"**
+
+Always make sure there is a running Ganache instance: **"npm run ganache"**
+
 To execute tests run: **"npm test"** or **"npm run test"**
 
 ### Starting electron application:

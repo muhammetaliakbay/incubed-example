@@ -11,12 +11,11 @@ import {
 import {blueGrey, grey} from '@material-ui/core/colors';
 import {ApplicationAppBar} from "./app-bar";
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import {NodeRegistryApiMirror} from "../api-mirror";
 import {catchError, ignoreElements, repeat, retry, scan} from "rxjs/operators";
 import {ExtendedNodeInfo, NodeMap, watchContract, watchNodes} from "../../engine/node-watch";
 import {NodeRegistryApi} from "../../engine/node-registry-api";
 import {EMPTY, Observable, timer} from "rxjs";
-import {Network, setNetwork} from "../provider";
+import {Network} from "../provider";
 import {NetworkBar} from "./network-bar";
 
 const theme = createMuiTheme(
@@ -49,16 +48,15 @@ export function Dashboard(
             if (api == undefined) {
                 return EMPTY;
             } else {
-                const notifyPeriod = 60*1000;
-
-                const notifier = timer(0, notifyPeriod) as any as Observable<void>;
-
+                // Watch contract events, and keep up to date by checking latest block every 60 seconds
                 const contractWatch$ = watchContract(
                     api,
-                    notifier
+                    60*1000
                 ).pipe(
                     catchError(
                         err => {
+                            // If an error occurs while watching contract events, log the error and
+                            // wait for 15 seconds before re-subscribing the events
                             console.error(err);
                             return timer(15000).pipe(ignoreElements());
                         }
@@ -66,10 +64,13 @@ export function Dashboard(
                     repeat()
                 );
 
+                // Build a node-map and keep up to date by watching contract events
                 const nodeMap$ = watchNodes(
                     contractWatch$
                 );
 
+                // Convert node-map to a node-list. Preserve the index of elements in the list
+                // so the table doesn't act strange when new nodes found
                 return nodeMap$.pipe(
                     scan<NodeMap, ExtendedNodeInfo[]>(
                         (list, map) => {
@@ -95,6 +96,7 @@ export function Dashboard(
         nodes = [];
     }
 
+    // Use current network (network changes when network-parameters gets changed)
     let [network] = useObservable( () => network$, [network$]);
 
     return <>

@@ -13,6 +13,9 @@ import {
 import * as React from "react";
 import {Network} from "../provider";
 
+/**
+ * Predefined networks to show in network-bar at the top of the page
+ */
 const predefinedNetworks: Network[] = [
     {
         chainId: 'mainnet',
