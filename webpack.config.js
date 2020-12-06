@@ -65,9 +65,6 @@ module.exports = [
         name: 'ui',
 
         ...commons,
-        externals: [
-            'fs commonjs',
-        ],
 
         entry: './src/ui/index.tsx',
 
@@ -101,6 +98,7 @@ module.exports = [
         },
 
         plugins: [
+            new webpack.IgnorePlugin(/fs/),
             new webpack.optimize.LimitChunkCountPlugin({
                 maxChunks: 1,
             }),
