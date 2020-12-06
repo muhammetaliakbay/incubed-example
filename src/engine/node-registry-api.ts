@@ -66,9 +66,9 @@ export class NodeRegistryApi {
     ) {
     }
 
-    // create web3 contract instance using abi and contract address
+    // Create web3 contract instance using abi and contract address
     private logicContract = new this.web3.eth.Contract(logicABI, this.contractAddress);
-    // makes a request to get address of NodeRegistryData contract to
+    // Makes a request to get address of NodeRegistryData contract to
     // be used when making requests to get information of nodes
     // Note: NodeRegistryLogic contract is a proxy contract.
     private dataContractAddress$ = this.logicContract.methods.nodeRegistryData().call();
@@ -98,15 +98,15 @@ export class NodeRegistryApi {
 
     private async tx(data: string, {gasPrice, from, gas, nonce, privateKey}: TransactionProperties, to: string): Promise<void> {
         if (gasPrice == undefined) {
-            // if gasPrice is not specified, first request for it
+            // If gasPrice is not specified, first request for it
             gasPrice = await this.web3.eth.getGasPrice();
         }
         if (nonce == undefined) {
-            // if nonce is not specified, first request for it
+            // If nonce is not specified, first request for it
             nonce = await this.web3.eth.getTransactionCount(from);
         }
 
-        // creates a signed version of the transaction before send
+        // Creates a signed version of the transaction before send
         const signed = await this.web3.eth.accounts.signTransaction({
             gasPrice: gasPrice.toString(),
             gas: gas.toString(),
@@ -116,7 +116,7 @@ export class NodeRegistryApi {
             to
         }, privateKey);
 
-        // sends the signed transaction
+        // Sends the signed transaction
         await (this.web3.eth.sendSignedTransaction(signed.rawTransaction));
     }
 
@@ -127,17 +127,17 @@ export class NodeRegistryApi {
      */
     async registerNode(nodeInfo: NodeInfo, transactionProperties: TransactionProperties): Promise<void> {
         if (nodeInfo.signer !== transactionProperties.from) {
-            // check if signer in the nodeInfo is exactly same address with the signer of this transaction
+            // Check if signer in the nodeInfo is exactly same address with the signer of this transaction
             throw new Error('Node\'s signer and tx\'s signer must be same address');
         }
 
-        // compiles the function call into ABI structure before signing it
+        // Compiles the function call into ABI structure before signing it
         const abi = this.logicContract.methods.registerNode(
             nodeInfo.url, buildProps(nodeInfo.properties).toString(),
             nodeInfo.weight, nodeInfo.deposit.toString()
         ).encodeABI();
 
-        // sign the function call and send to the network
+        // Sign the function call and send to the network
         await this.tx(abi, transactionProperties, this.contractAddress);
     }
 

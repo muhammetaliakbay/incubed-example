@@ -15,7 +15,9 @@ import {NodeRegistryApiMirror} from "../api-mirror";
 import {catchError, ignoreElements, repeat, retry, scan} from "rxjs/operators";
 import {ExtendedNodeInfo, NodeMap, watchContract, watchNodes} from "../../engine/node-watch";
 import {NodeRegistryApi} from "../../engine/node-registry-api";
-import {Observable, timer} from "rxjs";
+import {EMPTY, Observable, timer} from "rxjs";
+import {Network, setNetwork} from "../provider";
+import {NetworkBar} from "./network-bar";
 
 const theme = createMuiTheme(
     {
@@ -31,51 +33,61 @@ const theme = createMuiTheme(
 
 export function Dashboard(
     {
-        api
+        api$,
+        network$,
+        setNetwork
     }: {
-        api: NodeRegistryApi
+        api$: Observable<NodeRegistryApi>,
+        network$: Observable<Network>,
+        setNetwork: (network: Network) => void
     }
 ) {
+    let [api] = useObservable(() => api$, [api$]);
+
     let [nodes] = useObservable(
         () => {
-            const notifyPeriod = 60*1000;
+            if (api == undefined) {
+                return EMPTY;
+            } else {
+                const notifyPeriod = 60*1000;
 
-            const notifier = timer(0, notifyPeriod) as any as Observable<void>;
+                const notifier = timer(0, notifyPeriod) as any as Observable<void>;
 
-            const contractWatch$ = watchContract(
-                api,
-                notifier
-            ).pipe(
-                catchError(
-                    err => {
-                        console.error(err);
-                        return timer(15000).pipe(ignoreElements());
-                    }
-                ),
-                repeat()
-            );
-
-            const nodeMap$ = watchNodes(
-                contractWatch$
-            );
-
-            return nodeMap$.pipe(
-                scan<NodeMap, ExtendedNodeInfo[]>(
-                    (list, map) => {
-                        const newList = list.slice();
-                        for (const node of Object.values(map)) {
-                            const index = newList.findIndex(prev => prev.signer === node.signer);
-                            if (index > -1) {
-                                newList[index] = node;
-                            } else {
-                                newList.push(node);
-                            }
+                const contractWatch$ = watchContract(
+                    api,
+                    notifier
+                ).pipe(
+                    catchError(
+                        err => {
+                            console.error(err);
+                            return timer(15000).pipe(ignoreElements());
                         }
-                        return newList;
-                    },
-                    []
-                )
-            );
+                    ),
+                    repeat()
+                );
+
+                const nodeMap$ = watchNodes(
+                    contractWatch$
+                );
+
+                return nodeMap$.pipe(
+                    scan<NodeMap, ExtendedNodeInfo[]>(
+                        (list, map) => {
+                            const newList = list.slice();
+                            for (const node of Object.values(map)) {
+                                const index = newList.findIndex(prev => prev.signer === node.signer);
+                                if (index > -1) {
+                                    newList[index] = node;
+                                } else {
+                                    newList.push(node);
+                                }
+                            }
+                            return newList;
+                        },
+                        []
+                    )
+                );
+            }
         },
          [ api ]
     );
@@ -83,11 +95,14 @@ export function Dashboard(
         nodes = [];
     }
 
+    let [network] = useObservable( () => network$, [network$]);
+
     return <>
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <Box position='relative' height='100%' display='flex' flexDirection='column' alignItems='stretch'>
                 <ApplicationAppBar title='Incubed Example Dashboard | Muhammet Ali AKBAY'/>
+                <NetworkBar network={network} setNetwork={setNetwork} />
                 <Box flexGrow={1} minHeight={0} display='flex' flexDirection='row' alignItems='stretch'>
                     <div style={{flexGrow: 1, overflowY: 'auto', overflowX: 'hidden'}}>
                         <Box position='relative' height='100%'>

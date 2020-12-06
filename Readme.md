@@ -1,9 +1,9 @@
-# In3 Test Task &middot; [![CI](https://github.com/muhammetaliakbay/incubed-example/workflows/CI/badge.svg)](https://github.com/muhammetaliakbay/incubed-example) [![TypeDoc](https://img.shields.io/badge/Docs-TypeDoc-blue)](http://incubed-example.muhammetaliakbay.com/docs/) [![Demo](https://img.shields.io/badge/Demo-Web%20App-green)](http://incubed-example.muhammetaliakbay.com/)
+# In3 Test Task &middot; [![CI](https://github.com/muhammetaliakbay/incubed-example/workflows/CI/badge.svg)](https://github.com/muhammetaliakbay/incubed-example) [![TypeDoc](https://img.shields.io/badge/Docs-TypeDoc-blue)](http://incubed-example.muhammetaliakbay.com/docs/index.html) [![Demo](https://img.shields.io/badge/Demo-Web%20App-green)](http://incubed-example.muhammetaliakbay.com/)
 
 This project is created and maintained by Muhammet Ali AKBAY in order to 
 be a solution for the test task about job application to Blockchains LLC.
 
-- **Documentations can be found here**: [incubed-example.muhammetaliakbay.com/docs](http://incubed-example.muhammetaliakbay.com/docs/)
+- **Documentations can be found here**: [incubed-example.muhammetaliakbay.com/docs/index.html](http://incubed-example.muhammetaliakbay.com/docs/index.html)
 - **Demo Web Application can be found here**: [incubed-example.muhammetaliakbay.com](http://incubed-example.muhammetaliakbay.com/)
 
 ---

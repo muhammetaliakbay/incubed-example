@@ -5,11 +5,8 @@ import './index.scss';
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import 'fontsource-roboto/index.css';
 import 'material-icons-font/material-icons-font.css';
-import {ReplaySubject} from "rxjs";
 import {Dashboard} from "./components/dashboard";
-import {NodeMap} from "../engine/node-watch";
-import {NodeRegistryApiMirror} from "./api-mirror";
-import {api$} from "./provider";
+import {api$, network$, setNetwork} from "./provider";
 
 process.on('uncaughtException', error =>
     console.error('uncaughtException on index', error)
@@ -20,6 +17,6 @@ process.on('unhandledRejection', reason =>
 
 const content = document.querySelector("#content");
 
-api$.then(
-    api => render(<Dashboard api={api} />, content)
-);
+setNetwork('mainnet', '0x6c095a05764a23156efd9d603eada144a9b1af33');
+
+render(<Dashboard api$={api$} network$={network$} setNetwork={network => setNetwork(network.chainId, network.contractAddress)} />, content);
